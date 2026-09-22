@@ -16,7 +16,9 @@ import {
   Copy,
   Trash2
 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 import { PatientData, VITAL_FIELDS } from '@/lib/patient';
+import { flagVital } from '@/lib/vitals';
 import {
   buildRecordSummary,
   copyToClipboard,
@@ -118,12 +120,27 @@ export const PatientView: React.FC<PatientViewProps> = ({
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {VITAL_FIELDS.map(({ field, label }) => (
-              <div key={field} className="space-y-1">
-                <p className="text-sm text-muted-foreground">{label}</p>
-                <p className="font-medium">{patientData[field] || 'N/A'}</p>
-              </div>
-            ))}
+            {VITAL_FIELDS.map(({ field, label }) => {
+              const flag = flagVital(field, patientData[field]);
+              return (
+                <div key={field} className="space-y-1">
+                  <p className="text-sm text-muted-foreground">{label}</p>
+                  <div className="flex items-center gap-2">
+                    <p className={`font-medium ${flag ? 'text-destructive' : ''}`}>
+                      {patientData[field] || 'N/A'}
+                    </p>
+                    {flag && (
+                      <Badge
+                        variant="destructive"
+                        title="Outside typical adult resting range"
+                      >
+                        {flag === 'high' ? 'High' : 'Low'}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </CardContent>
       </Card>
