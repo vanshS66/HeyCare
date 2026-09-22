@@ -8,29 +8,40 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Calendar, Stethoscope, FileText, ClipboardList, Activity } from 'lucide-react';
+import { PatientData, VITAL_FIELDS } from '@/lib/patient';
 
-// Central data model used throughout the app for a patient's record
-export interface PatientData {
-  id: string;
-  patientName: string;
-  age: string;
-  gender: string;
-  symptoms: string;
-  medicalHistory: string;
-  diagnosis: string;
-  treatmentPlan: string;
-  transcript: string;
-  formattedTranscript?: string;
-  createdAt: string;
-  // Vitals
-  bloodPressure: string;
-  heartRate: string;
-  temperature: string;
-  respiratoryRate: string;
-  oxygenSaturation: string;
-  weight: string;
-  height: string;
-}
+// The free-text sections below the vitals grid. Each gets a transcript-insert
+// button, so they are described once rather than repeated four times.
+const NARRATIVE_FIELDS = [
+  {
+    field: 'symptoms',
+    label: 'Symptoms / Chief Complaint',
+    Icon: Stethoscope,
+    placeholder: "Describe the patient's primary symptoms and chief complaint",
+    className: 'min-h-[100px] resize-y',
+  },
+  {
+    field: 'medicalHistory',
+    label: 'Medical History',
+    Icon: FileText,
+    placeholder: 'Previous medical conditions, surgeries, medications, allergies',
+    className: 'min-h-[100px] resize-y',
+  },
+  {
+    field: 'diagnosis',
+    label: 'Diagnosis',
+    Icon: Calendar,
+    placeholder: 'Enter diagnosis (can be edited after transcription)',
+    className: 'min-h-[80px] resize-y',
+  },
+  {
+    field: 'treatmentPlan',
+    label: 'Treatment Plan / Notes',
+    Icon: ClipboardList,
+    placeholder: 'Treatment recommendations, follow-up instructions, prescriptions',
+    className: 'min-h-[120px] resize-y',
+  },
+] as const satisfies ReadonlyArray<{ field: keyof PatientData; label: string; Icon: React.ElementType; placeholder: string; className: string }>;
 
 interface PatientFormProps {
   patientData: PatientData;
@@ -125,215 +136,53 @@ export const PatientForm: React.FC<PatientFormProps> = ({
             <Activity className="w-5 h-5 text-primary" />
             <h3 className="text-lg font-semibold text-foreground">Vital Signs</h3>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {/* Blood Pressure */}
-            <div className="space-y-2">
-              <Label htmlFor="bloodPressure" className="text-sm font-medium text-foreground">
-                Blood Pressure
-              </Label>
-              <Input
-                id="bloodPressure"
-                value={patientData.bloodPressure}
-                onChange={(e) => handleInputChange('bloodPressure', e.target.value)}
-                placeholder="e.g., 120/80 mmHg"
-                className="w-full"
-              />
-            </div>
-
-            {/* Heart Rate */}
-            <div className="space-y-2">
-              <Label htmlFor="heartRate" className="text-sm font-medium text-foreground">
-                Heart Rate
-              </Label>
-              <Input
-                id="heartRate"
-                value={patientData.heartRate}
-                onChange={(e) => handleInputChange('heartRate', e.target.value)}
-                placeholder="e.g., 72 bpm"
-                className="w-full"
-              />
-            </div>
-
-            {/* Temperature */}
-            <div className="space-y-2">
-              <Label htmlFor="temperature" className="text-sm font-medium text-foreground">
-                Temperature
-              </Label>
-              <Input
-                id="temperature"
-                value={patientData.temperature}
-                onChange={(e) => handleInputChange('temperature', e.target.value)}
-                placeholder="e.g., 98.6°F"
-                className="w-full"
-              />
-            </div>
-
-            {/* Respiratory Rate */}
-            <div className="space-y-2">
-              <Label htmlFor="respiratoryRate" className="text-sm font-medium text-foreground">
-                Respiratory Rate
-              </Label>
-              <Input
-                id="respiratoryRate"
-                value={patientData.respiratoryRate}
-                onChange={(e) => handleInputChange('respiratoryRate', e.target.value)}
-                placeholder="e.g., 16 breaths/min"
-                className="w-full"
-              />
-            </div>
-
-            {/* Oxygen Saturation */}
-            <div className="space-y-2">
-              <Label htmlFor="oxygenSaturation" className="text-sm font-medium text-foreground">
-                Oxygen Saturation
-              </Label>
-              <Input
-                id="oxygenSaturation"
-                value={patientData.oxygenSaturation}
-                onChange={(e) => handleInputChange('oxygenSaturation', e.target.value)}
-                placeholder="e.g., 98%"
-                className="w-full"
-              />
-            </div>
-
-            {/* Weight */}
-            <div className="space-y-2">
-              <Label htmlFor="weight" className="text-sm font-medium text-foreground">
-                Weight
-              </Label>
-              <Input
-                id="weight"
-                value={patientData.weight}
-                onChange={(e) => handleInputChange('weight', e.target.value)}
-                placeholder="e.g., 70 kg"
-                className="w-full"
-              />
-            </div>
-
-            {/* Height */}
-            <div className="space-y-2">
-              <Label htmlFor="height" className="text-sm font-medium text-foreground">
-                Height
-              </Label>
-              <Input
-                id="height"
-                value={patientData.height}
-                onChange={(e) => handleInputChange('height', e.target.value)}
-                placeholder="e.g., 175 cm"
-                className="w-full"
-              />
-            </div>
+            {VITAL_FIELDS.map(({ field, label, placeholder }) => (
+              <div key={field} className="space-y-2">
+                <Label htmlFor={field} className="text-sm font-medium text-foreground">
+                  {label}
+                </Label>
+                <Input
+                  id={field}
+                  value={patientData[field] as string}
+                  onChange={(e) => handleInputChange(field, e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full"
+                />
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Symptoms / Chief Complaint */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="symptoms" className="text-sm font-medium text-foreground flex items-center gap-2">
-              <Stethoscope className="w-4 h-4" />
-              Symptoms / Chief Complaint
-            </Label>
-            {transcript && (
-              <Button
-                onClick={() => insertTranscriptToField('symptoms')}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Insert Transcript
-              </Button>
-            )}
+        {/* Narrative sections, each with an optional "Insert Transcript" action */}
+        {NARRATIVE_FIELDS.map(({ field, label, Icon, placeholder, className }) => (
+          <div key={field} className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor={field} className="text-sm font-medium text-foreground flex items-center gap-2">
+                <Icon className="w-4 h-4" />
+                {label}
+              </Label>
+              {transcript && (
+                <Button
+                  onClick={() => insertTranscriptToField(field)}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  Insert Transcript
+                </Button>
+              )}
+            </div>
+            <Textarea
+              id={field}
+              value={patientData[field] as string}
+              onChange={(e) => handleInputChange(field, e.target.value)}
+              placeholder={placeholder}
+              className={className}
+            />
           </div>
-          <Textarea
-            id="symptoms"
-            value={patientData.symptoms}
-            onChange={(e) => handleInputChange('symptoms', e.target.value)}
-            placeholder="Describe the patient's primary symptoms and chief complaint"
-            className="min-h-[100px] resize-y"
-          />
-        </div>
-
-        {/* Medical History */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="medicalHistory" className="text-sm font-medium text-foreground flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Medical History
-            </Label>
-            {transcript && (
-              <Button
-                onClick={() => insertTranscriptToField('medicalHistory')}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Insert Transcript
-              </Button>
-            )}
-          </div>
-          <Textarea
-            id="medicalHistory"
-            value={patientData.medicalHistory}
-            onChange={(e) => handleInputChange('medicalHistory', e.target.value)}
-            placeholder="Previous medical conditions, surgeries, medications, allergies"
-            className="min-h-[100px] resize-y"
-          />
-        </div>
-
-        {/* Diagnosis */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="diagnosis" className="text-sm font-medium text-foreground flex items-center gap-2">
-              <Calendar className="w-4 h-4" />
-              Diagnosis
-            </Label>
-            {transcript && (
-              <Button
-                onClick={() => insertTranscriptToField('diagnosis')}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Insert Transcript
-              </Button>
-            )}
-          </div>
-          <Textarea
-            id="diagnosis"
-            value={patientData.diagnosis}
-            onChange={(e) => handleInputChange('diagnosis', e.target.value)}
-            placeholder="Enter diagnosis (can be edited after transcription)"
-            className="min-h-[80px] resize-y"
-          />
-        </div>
-
-        {/* Treatment Plan / Notes */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="treatmentPlan" className="text-sm font-medium text-foreground flex items-center gap-2">
-              <ClipboardList className="w-4 h-4" />
-              Treatment Plan / Notes
-            </Label>
-            {transcript && (
-              <Button
-                onClick={() => insertTranscriptToField('treatmentPlan')}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-              >
-                Insert Transcript
-              </Button>
-            )}
-          </div>
-          <Textarea
-            id="treatmentPlan"
-            value={patientData.treatmentPlan}
-            onChange={(e) => handleInputChange('treatmentPlan', e.target.value)}
-            placeholder="Treatment recommendations, follow-up instructions, prescriptions"
-            className="min-h-[120px] resize-y"
-          />
-        </div>
+        ))}
 
         {/* Save Button */}
         <div className="flex justify-end pt-4">

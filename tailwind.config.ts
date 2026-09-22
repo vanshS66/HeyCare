@@ -11,7 +11,7 @@ export default {
   darkMode: ["class"],
 
   // Files Tailwind should scan to generate utility classes actually in use
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: ["./src/**/*.{ts,tsx}"],
 
   // Optional class prefix (unused here, but helpful in some integrations)
   prefix: "",

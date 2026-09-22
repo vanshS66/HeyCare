@@ -2,7 +2,7 @@
 // It scans raw text for common patterns to infer patient name, age, gender,
 // symptoms, medical history, diagnosis, and treatment plan. It is not the best parser, but it's a good fallback.
 // We still need to use the AI parser to get the most accurate results.
-import { PatientData } from '@/components/PatientForm';
+import { PatientData } from '@/lib/patient';
 
 interface ParsedPatientInfo {
   patientName?: string;
